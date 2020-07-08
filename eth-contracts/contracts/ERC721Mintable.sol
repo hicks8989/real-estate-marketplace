@@ -22,7 +22,7 @@ contract Ownable {
     function transferOwnership(address newOwner) external onlyOwner {
         require(newOwner != address(0), "Address must be a valid address");
         _owner = newOwner;
-        emit OwnershipTransfered(newOwner);
+        emit OwnershipTransfered(msg.sender, newOwner);
     }
 
     function getOwner() public view returns(address) {
@@ -142,11 +142,11 @@ contract ERC721 is Pausable, ERC165 {
     }
 
     function balanceOf(address owner) public view returns (uint256) {
-        return _ownedTokensCount(owner).current();
+        return _ownedTokensCount[owner].current();
     }
 
     function ownerOf(uint256 tokenId) public view returns (address) {
-        return _tokenOwner(tokenId);
+        return _tokenOwner[tokenId];
     }
 
 //    @dev Approves another address to transfer the given token ID
@@ -226,7 +226,7 @@ contract ERC721 is Pausable, ERC165 {
     // @dev Internal function to mint a new token
     // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
     function _mint(address to, uint256 tokenId) internal {
-        if (_tokenOwner[tokenId] != address(0) || to == address(0)) {
+        if (_exists(tokenId) || to == address(0)) {
             revert("Token already exists with that id or provided address is invalid.");
         }
 
@@ -316,7 +316,7 @@ contract ERC721Enumerable is ERC165, ERC721 {
      * @return uint256 token ID at the given index of the tokens list owned by the requested address
      */
     function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256) {
-        require(index < balanceOf(owner));
+        require(index < balanceOf(owner), "Provided index can not be greater than owner token count.");
         return _ownedTokens[owner][index];
     }
 
@@ -335,7 +335,7 @@ contract ERC721Enumerable is ERC165, ERC721 {
      * @return uint256 token ID at the given index of the tokens list
      */
     function tokenByIndex(uint256 index) public view returns (uint256) {
-        require(index < totalSupply());
+        require(index < totalSupply(), "Provided index can not be greater than total supply of tokens.");
         return _allTokens[index];
     }
 
@@ -453,10 +453,12 @@ contract ERC721Enumerable is ERC165, ERC721 {
 }
 
 contract ERC721Metadata is ERC721Enumerable, usingOraclize {
-    
-    // TODO: Create private vars for token _name, _symbol, and _baseTokenURI (string)
 
-    // TODO: create private mapping of tokenId's to token uri's called '_tokenURIs'
+    string private _name;
+    string private _symbol;
+    string private _baseTokenURI;
+
+    mapping (uint256 => string) private _tokenURIs;
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
     /*
@@ -468,25 +470,36 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 
 
     constructor (string memory name, string memory symbol, string memory baseTokenURI) public {
-        // TODO: set instance var values
+        _name = name;
+        _symbol = symbol;
+        _baseTokenURI = baseTokenURI;
 
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
 
-    // TODO: create external getter functions for name, symbol, and baseTokenURI
+    function getName() external view returns(string memory) {
+        return _name;
+    }
+
+    function getSymbol() external view returns(string memory) {
+        return _symbol;
+    }
+
+    function getBaseTokenURI() external view returns(string memory) {
+        return _baseTokenURI;
+    }
 
     function tokenURI(uint256 tokenId) external view returns (string memory) {
-        require(_exists(tokenId));
+        require(_exists(tokenId), "Provided tokenId must exist.");
         return _tokenURIs[tokenId];
     }
 
 
     // TODO: Create an internal function to set the tokenURI of a specified tokenId
-    // It should be the _baseTokenURI + the tokenId in string form
-    // TIP #1: use strConcat() from the imported oraclizeAPI lib to set the complete token URI
-    // TIP #2: you can also use uint2str() to convert a uint to a string
-        // see https://github.com/oraclize/ethereum-api/blob/master/oraclizeAPI_0.5.sol for strConcat()
-    // require the token exists before setting
+    function setTokenUri(uint256 tokenId) internal {
+        require(_exists(tokenId), "Provided tokenId must exist");
+        _tokenURIs[tokenId] = strConcat(_baseTokenURI, uint2str(tokenId));
+    }
 
 }
 
