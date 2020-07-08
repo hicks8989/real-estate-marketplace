@@ -1,24 +1,35 @@
 pragma solidity ^0.5.0;
 
-import 'openzeppelin-solidity/contracts/utils/Address.sol';
-import 'openzeppelin-solidity/contracts/drafts/Counters.sol';
-import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
-import 'openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol';
+import '../../node_modules/openzeppelin-solidity/contracts/utils/Address.sol';
+import '../../node_modules/openzeppelin-solidity/contracts/drafts/Counters.sol';
+import '../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol';
+import '../../node_modules/openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol';
 import "./Oraclize.sol";
 
 contract Ownable {
-    //  TODO's
-    //  1) create a private '_owner' variable of type address with a public getter function
-    //  2) create an internal constructor that sets the _owner var to the creater of the contract 
-    //  3) create an 'onlyOwner' modifier that throws if called by any account other than the owner.
-    //  4) fill out the transferOwnership function
-    //  5) create an event that emits anytime ownerShip is transfered (including in the constructor)
+    address private _owner;
 
-    function transferOwnership(address newOwner) public onlyOwner {
-        // TODO add functionality to transfer control of the contract to a newOwner.
-        // make sure the new owner is a real address
-
+    constructor() internal {
+        _owner = msg.sender;
+        emit OwnershipTransfered(address(0), _owner);
     }
+
+    modifier onlyOwner() {
+        require(_owner == msg.sender, "Only the owner can access this function.");
+        _;
+    }
+
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Address must be a valid address");
+        _owner = newOwner;
+        emit OwnershipTransfered(newOwner);
+    }
+
+    function getOwner() public view returns(address) {
+        return _owner;
+    }
+
+    event OwnershipTransfered(address indexed oldOwner, address indexed newOwner);
 }
 
 //  TODO's: Create a Pausable contract that inherits from the Ownable contract
@@ -71,7 +82,7 @@ contract ERC721 is Pausable, ERC165 {
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
 
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
-    
+
     using SafeMath for uint256;
     using Address for address;
     using Counters for Counters.Counter;
