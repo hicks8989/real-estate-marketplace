@@ -6,15 +6,15 @@ const Verifier = artifacts.require('Verifier');
 contract('SolnSquareVerifier', accounts => {
 
   const proof = require("./proof.json");
-  const account_one = accounts[0];
+  const owner = accounts[0];
 
   describe('Match SolnSquareVerifier spec', () => {
     beforeEach(async function () {
       this.verifier = await Verifier.new({
-        from: account_one
+        from: owner
       });
       this.contract = await SolnSquareVerifier.new(this.verifier.address, {
-        from: account_one
+        from: owner
       });
 
       this.inputs = proof.inputs;
@@ -24,14 +24,17 @@ contract('SolnSquareVerifier', accounts => {
     it('Should allow user to mint with a correct solution', async function () {
       try {
         await this.contract.mintAfterVerification(
-          account_one, 1,
+          owner, 1,
           this.proof.a, this.proof.b,
-          this.proof.c, this.inputs);
+          this.proof.c, this.inputs,
+          {
+            from: owner
+          });
       } catch(e) {
         console.log(e);
       }
       const result = await this.contract.ownerOf(1);
-      assert.equal(result, account_one, "Invalid token owner.");
+      assert.equal(result, owner, "Invalid token owner.");
     });
   });
 });
