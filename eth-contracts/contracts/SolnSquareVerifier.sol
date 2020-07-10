@@ -1,59 +1,74 @@
 pragma solidity >=0.4.21 <0.6.0;
 
+import "./ERC721Mintable.sol";
+import "./verifier.sol";
+
 // TODO define a contract call to the zokrates generated solidity contract <Verifier> or <renamedVerifier>
 
 
 
 // TODO define another contract named SolnSquareVerifier that inherits from your ERC721Mintable class
+contract solnSquareVerifier is ERC721Mintable {
+  struct Solution {
+    uint256 index;
+    address adr;
+    bool submitted;
+  }
 
+  Solution[] solutions;
+  uint256 counter = 1;
 
+  mapping(bytes32 => Solution) uniqueSolutions;
 
-// TODO define a solutions struct that can hold an index & an address
+  event AddedSolution(uint256 index, address adr);
 
+  modifier isUniqueSolution(
+    uint[2] memory a,
+    uint[2][2] memory b,
+    uint[2] memory c,
+    uint[2] memory input
+  ) {
+    bytes32 key = getSolutionKey(a, b, c, input);
+    require(!uniqueSolutions[key].submitted, "Solution already submitted.");
+    _;
+  }
 
-// TODO define an array of the above struct
+  function addSolution(
+    uint[2] memory a,
+    uint[2][2] memory b,
+    uint[2] memory c,
+    uint[2] memory input
+  ) public isUniqueSolution(a, b, c, input) {
+    bytes32 key = getSolutionKey(a, b, c, input);
+    uniqueSolutions[key] = Solution({
+      index: counter,
+      adr: msg.sender,
+      submitted: true
+    });
 
+    counter += 1;
+    emit AddedSolution(uniqueSolutions[key].index, msg.sender);
+  }
 
-// TODO define a mapping to store unique solutions submitted
+  function mintAfterVerification(
+    address to,
+    uint256 tokenId,
+    uint[2] memory a,
+    uint[2][2] memory b,
+    uint[2] memory c,
+    uint[2] memory input
+  ) public isUniqueSolution(a, b, c, input) {
+    require(verifierContract.verifyTx(a, b, c, input), "Incorrect solution");
+    addSolution(a, b, c, input);
+    super.mint(to, tokenId);
+  }
 
-
-
-// TODO Create an event to emit when a solution is added
-
-
-
-// TODO Create a function to add the solutions to the array and emit the event
-
-
-
-// TODO Create a function to mint new NFT only after the solution has been verified
-//  - make sure the solution is unique (has not been used before)
-//  - make sure you handle metadata as well as tokenSuplly
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  function getSolutionKey(
+    uint[2] memory a,
+    uint[2][2] memory b,
+    uint[2] memory c,
+    uint[2] memory input
+  ) internal pure returns(bytes32) {
+    return keccak256(abi.encodePacked(a, b, c, input));
+  }
+}
