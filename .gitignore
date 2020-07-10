@@ -3,3 +3,6 @@ node_modules
 
 # Ignore contract build
 build
+
+# Ignore secret
+.secret
