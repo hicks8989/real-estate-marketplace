@@ -10,7 +10,6 @@ contract SolnSquareVerifier is ERC721Mintable {
     bool submitted;
   }
 
-  Solution[] solutions;
   uint256 counter = 1;
   Verifier public verifierContract;
 
@@ -38,7 +37,7 @@ contract SolnSquareVerifier is ERC721Mintable {
     uint[2][2] memory b,
     uint[2] memory c,
     uint[2] memory input
-  ) public isUniqueSolution(a, b, c, input) {
+  ) internal isUniqueSolution(a, b, c, input) {
     bytes32 key = getSolutionKey(a, b, c, input);
     uniqueSolutions[key] = Solution({
       index: counter,
