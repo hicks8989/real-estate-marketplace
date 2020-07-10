@@ -233,7 +233,7 @@ contract ERC721 is Pausable, ERC165 {
         _tokenOwner[tokenId] = to;
         _ownedTokensCount[to].increment();
 
-        emit Transfer(msg.sender, to, tokenId);
+        emit Transfer(address(0), to, tokenId);
     }
 
     // @dev Internal function to transfer ownership of a given token ID to another address.
@@ -248,8 +248,9 @@ contract ERC721 is Pausable, ERC165 {
 
         _ownedTokensCount[from].decrement();
         _ownedTokensCount[to].increment();
+        _tokenOwner[tokenId] = to;
 
-        emit Transfer(to, from, tokenId);
+        emit Transfer(from, to, tokenId);
     }
 
     /**

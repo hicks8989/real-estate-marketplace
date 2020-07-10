@@ -1,4 +1,4 @@
-const ERC721MintableComplete = artifacts.require('ERC721MintableComplete');
+const ERC721MintableComplete = artifacts.require('ERC721Mintable');
 
 contract('TestERC721Mintable', accounts => {
 
@@ -18,20 +18,18 @@ contract('TestERC721Mintable', accounts => {
         });
 
         it('should return total supply', async function () {
-            const result = await this.contract.totalSupply.call();
+            const result = await this.contract.totalSupply();
             assert.equal(result, 3, "Invalid supply count");
         })
 
         it('should get token balance', async function () {
-            const result = await this.contract.balaceOf.call(account_one, {
-                from: account_one
-            });
+            const result = await this.contract.balanceOf(account_one);
             assert.equal(result, 3, "Invalid account balance");
         });
 
         // token uri should be complete i.e: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/1
         it('should return token uri', async function () {
-            const result = await this.contract.tokenURI.call(1);
+            const result = await this.contract.tokenURI(1);
             assert.equal(result, "https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/1", "Invalid token URI");
         })
 
@@ -43,16 +41,15 @@ contract('TestERC721Mintable', accounts => {
             } catch(e) {
 
             }
-            const result = await this.contract.ownerOf.call(1);
-
+            const result = await this.contract.ownerOf(1);
             assert.equal(result, account_two, "Invalid token owner");
-        })
+        });
     });
 
     describe('have ownership properties', function () {
         beforeEach(async function () {
             this.contract = await ERC721MintableComplete.new({from: account_one});
-        })
+        });
 
         it('should fail when minting when address is not contract owner', async function () {
             let reverted = false;
@@ -65,10 +62,10 @@ contract('TestERC721Mintable', accounts => {
             }
 
             assert(reverted, "Invalid mint.");
-        })
+        });
 
         it('should return contract owner', async function () {
-            const result = await this.contract.getOwner.call();
+            const result = await this.contract.getOwner();
             assert(result, account_one, "Invalid owner");
         });
 
