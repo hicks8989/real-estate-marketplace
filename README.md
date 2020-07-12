@@ -94,7 +94,7 @@ truffle(develop)> test
 
 There are 18 test cases provided. Upon running the tests, you should get back all 18 passing:
 
-[Test Screenshot](https://github.com/hicks8989/real-estate-marketplace/blob/dev/screenshots/test.JPG)
+![Test Screenshot](https://github.com/hicks8989/real-estate-marketplace/blob/dev/screenshots/test.JPG)
 
 ## Built With
 
