@@ -107,9 +107,9 @@ contract ERC165 {
 
 contract ERC721 is Pausable, ERC165 {
 
-    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
-    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+    event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+    event Approval(address indexed _owner, address indexed _approved, uint256 indexed _tokenId);
+    event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
 
     using SafeMath for uint256;
     using Address for address;
@@ -141,12 +141,12 @@ contract ERC721 is Pausable, ERC165 {
         _registerInterface(_INTERFACE_ID_ERC721);
     }
 
-    function balanceOf(address owner) public view returns (uint256) {
-        return _ownedTokensCount[owner].current();
+    function balanceOf(address _owner) public view returns (uint256) {
+        return _ownedTokensCount[_owner].current();
     }
 
-    function ownerOf(uint256 tokenId) public view returns (address) {
-        return _tokenOwner[tokenId];
+    function ownerOf(uint256 _tokenId) public view returns (address) {
+        return _tokenOwner[_tokenId];
     }
 
 //    @dev Approves another address to transfer the given token ID
@@ -478,15 +478,15 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
 
-    function getName() external view returns(string memory) {
+    function name() external view returns(string memory) {
         return _name;
     }
 
-    function getSymbol() external view returns(string memory) {
+    function symbol() external view returns(string memory) {
         return _symbol;
     }
 
-    function getBaseTokenURI() external view returns(string memory) {
+    function baseTokenURI() external view returns(string memory) {
         return _baseTokenURI;
     }
 
